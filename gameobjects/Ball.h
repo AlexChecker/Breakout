@@ -9,6 +9,8 @@
 #include "structs.h"
 #include "../Shader.h"
 #include <vector>
+#include <random>
+#include <exception>
 #define BALL_W .05f
 #define BALL_H .05f
 
@@ -23,8 +25,12 @@ public:
     Shader ball_shader;
     float x_pos;
     float y_pos;
-    int velocity_multiplyer_x =-1;
+    float velocity_multiplyer_x =-1;
     int velocity_multiplyer_y=1;
+    // 0-bottom
+    // 1-top
+    // 2-left
+    // 3-right
     struct Point collisionPoints[4];
     bool isAlive=true;
     float vertices_ball[12]=
@@ -41,7 +47,7 @@ public:
             };
 
     Ball(std::string vshader,std::string fshader);
-    void update(/* std::vector<Plane>& planes*/Platform platform);
+    void update( std::vector<Plane>& planes,Platform platform);
     void draw();
 };
 

@@ -26,7 +26,10 @@ Ball::Ball(std::string vshader, std::string fshader)  {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(indices_ball),indices_ball,GL_STATIC_DRAW);
     std::cout<<"VAO BALL: "<<VAO_BALL<<std::endl;
     glBindVertexArray(0);
-    collisionPoints[0]=Point(x_pos,y_pos-BALL_H);
+    collisionPoints[0]=Point(x_pos,y_pos-BALL_H); //bottom
+    collisionPoints[1]=Point(x_pos,y_pos+BALL_H); //top
+    collisionPoints[2]=Point(x_pos-BALL_W,y_pos); //left
+    collisionPoints[3]=Point(x_pos+BALL_W,y_pos); //right
 }
 
 void Ball::draw()
@@ -41,25 +44,47 @@ void Ball::draw()
 
 }
 
-void Ball::update(/*std::vector<Plane>& planes*/Platform platform) {
-
+void Ball::update(std::vector<Plane>& planes,Platform platform) {
+    collisionPoints[1]=Point(x_pos,y_pos+BALL_H);
     collisionPoints[0]=Point(x_pos,y_pos-BALL_H);
+    collisionPoints[2]=Point(x_pos-BALL_W,y_pos);
+    collisionPoints[3]=Point(x_pos+BALL_W,y_pos);
     if(isAlive) {
         if(y_pos<-1.0f)
             isAlive=false;
-        if (collisionPoints[0].isIntersects(platform.collisionPoints[0], platform.collisionPoints[1])) {
+        if (collisionPoints[0].isIntersects(platform.collisionPoints[0], platform.collisionPoints[1],.05,.0)) {
             velocity_multiplyer_y = 1;
+            velocity_multiplyer_x = -1.0f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(1.0f-(-1.0f))));
         }
         if (y_pos > .9) velocity_multiplyer_y = -1;
         if (x_pos > .9)
-            velocity_multiplyer_x = -1;
+            velocity_multiplyer_x *= -1;
         if (x_pos < -0.9)
-            velocity_multiplyer_x = 1;
+            velocity_multiplyer_x *= -1;
+
+        for(int i =0;i<planes.size();i++)
+        {
+            if(collisionPoints[1].isIntersects(planes[i].collisionPoints[1],planes[i].collisionPoints[2],.25,0,2))
+            {
+                planes.erase(planes.begin()+i);
+                velocity_multiplyer_y=-1;
+                velocity_multiplyer_x = -1.0f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(1.0f-(-1.0f))));
+            }
+            if(collisionPoints[0].isIntersects(planes[i].collisionPoints[0],planes[i].collisionPoints[3],.25,.0,1))
+            {
+                if(i < planes.size()) {
+                    std::cout << "BOTTOM COLLIDED!" << std::endl;
+                    planes.erase(planes.begin() + i);
+                    velocity_multiplyer_y = 1;
+                    velocity_multiplyer_x = -1.0f + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(1.0f-(-1.0f))));
+                }
+            }
+        }
 
 
-        x_pos += .02f * velocity_multiplyer_x;
-        y_pos+= .02f*velocity_multiplyer_y;
-        std::cout << y_pos << std::endl;
+        x_pos += .01f * velocity_multiplyer_x;
+        y_pos+= .01f*velocity_multiplyer_y;
+        //std::cout << y_pos << std::endl;
     }
 }
 

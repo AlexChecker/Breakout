@@ -61,10 +61,9 @@ Shader::Shader(const char *vpath, const char *fpath) {
         glGetShaderInfoLog(frag,512,nullptr,log);
         std::cout<<log<<std::endl;
     }
-    if(success)
-    {
-        std::cout<<"VERTEX SHADER SOURCE:\n"<<vshadercode<<std::endl<<"FRAGMENT SHADER SOURCE:\n"<<fshadercode<<std::endl;
-    }
+
+        std::cout<<"VERTEX SHADER SOURCE \""<<vpath<<"\":\n"<<vshadercode<<std::endl<<"FRAGMENT SHADER SOURCE\""<<fpath<<"\":\n"<<fshadercode<<std::endl;
+
     ID = glCreateProgram();
     glAttachShader(ID,vertex);
     glAttachShader(ID,frag);
@@ -103,6 +102,10 @@ void Shader::setInt(const std::string name, int val)
 
 void Shader::setVec2f(const std::string name, float val1,float val2) {
     glUniform2f(glGetUniformLocation(ID,name.c_str()),val1,val2);
+}
+
+void Shader::setVec3f(const std::string name, float val1, float val2, float val3) {
+    glUniform3f(glGetUniformLocation(ID,name.c_str()),val1,val2,val3);
 }
 
 

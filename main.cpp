@@ -3,6 +3,55 @@
 #include <glfw3.h>
 #include "gameobjects/Ball.h"
 #include "gameobjects/Platform.h"
+#include "gameobjects/structs.h"
+
+struct planeCollection
+{
+private:
+    const float start_x = -.875;
+    const float start_y = .5;
+    const float step_x = .25;
+    const float step_y=.06;
+public:
+    //Color first=Color(1.0f,.0,.0);
+    //Color second=Color(.7f,.5f,.0);
+    //Color third=Color(1.0f,1.0f,.0);
+    //Color fourth=Color(.0,1.0f,.0);
+    std::vector<Color> cols;
+    std::vector<Plane> planes;
+    planeCollection()
+    {
+        cols.push_back(Color(1.0f,.0,.0));
+        cols.push_back(Color(1.0f,.5f,.0));
+        cols.push_back(Color(1.0f,1.0f,.0));
+        cols.push_back(Color(.0,1.0f,.0));
+        //cols.push_back(Color(.5,.5,.5));
+        cols.push_back(Color(.0,1.0,1.0f));
+        cols.push_back(Color(.0,.0,1.0f));
+        cols.push_back(Color(.5,.0,.5f));
+
+        int color_iterator=0;
+        for(int y =0;y<=15;y++)
+        {
+            for(int x =0;x<8;x++)//7
+            {
+
+                Plane plane = Plane(start_x+(float)x*step_x,start_y-(float)y*step_y,.125,.03,cols.at(color_iterator));
+                planes.push_back(plane);
+                color_iterator++;
+                if(color_iterator== cols.size()) color_iterator=0;
+
+            }
+        }
+    }
+    void draw()
+    {
+        for(auto pl : planes)
+        {
+            pl.draw();
+        }
+    }
+};
 
 void resize_callback(GLFWwindow* win,int w,int h);
 void kbd_callback(GLFWwindow* win, int key,int scancode,int action,int mod);
@@ -41,18 +90,34 @@ int main() {
     glViewport(0,0,200,300);
     platform=Platform("platform.vert","platform.frag");
     Ball ball("ball.vert","ball.frag");
+    Plane plane = Plane(-.35,.5,.125,.03,Color(1.0f,.0,.0));
 
     glfwSetKeyCallback(window,kbd_callback);
     glfwSetFramebufferSizeCallback(window,resize_callback);
     std::cout<<"Entering main loop"<<std::endl;
+    planeCollection planes=planeCollection();
+    std::vector<Plane> pl;
+    pl.push_back(plane);
+    std::string c;
     while(!glfwWindowShouldClose(window))
     {
         glClearColor(.0,.0,.0,1.0);
         glClear(GL_COLOR_BUFFER_BIT);
-
+        if(planes.planes.size()==0)
+        {
+            ball.isAlive=false;
+            glfwSetWindowTitle(window,"You won!");
+        }
         platform.draw();
-        ball.update(platform);
+        ball.update(planes.planes,platform);
         ball.draw();
+        planes.draw();
+        //std::cin>>c;
+        if(!ball.isAlive&&planes.planes.size()>0)
+        {
+            glfwSetWindowTitle(window,"Game over!");
+        }
+        //plane.draw();
 
 
         glfwPollEvents();

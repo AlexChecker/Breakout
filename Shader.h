@@ -22,6 +22,7 @@ public:
     void setInt(const std::string name,int val);
     void setFloat(const std::string name,float val);
     void setVec2f(const std::string name, float val1,float val2);
+    void setVec3f(const std::string name,float val1,float val2,float val3);
 
 };
 
